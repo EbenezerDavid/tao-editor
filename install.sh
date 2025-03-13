@@ -75,5 +75,5 @@ install_deps
 verify_install
 
 echo "Dependencies installed. You can now compile the program with:"
-echo "gcc -o aee ai-easy-edition.c \$(pkg-config --cflags --libs gtk+-3.0)"
+echo "gcc -o tao-editor tao-editor.c \$(pkg-config --cflags --libs gtk+-3.0)"
 echo "Then run with: ./aee test.txt (Linux/macOS) or ./aee.exe test.txt (Windows)"

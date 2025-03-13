@@ -29,6 +29,6 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 Write-Host "Installation complete! Please open 'MSYS2 MinGW 64-bit' terminal and run:"
-Write-Host "gcc -o aee ai-easy-edition.c $(pkg-config --cflags --libs gtk+-3.0)"
+Write-Host "gcc -o aee tao-editor.c $(pkg-config --cflags --libs gtk+-3.0)"
 Write-Host "Then run: ./aee.exe test.txt"
 Pause
