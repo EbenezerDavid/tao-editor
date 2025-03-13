@@ -6,6 +6,10 @@ Simple Editor, like vim's commands
 
 ![GitHub License](https://img.shields.io/github/license/EbenezerDavid/tao-editor%20)
 
+![Static Badge](https://img.shields.io/badge/Langunge-C-green)
+
+![Static Badge](https://img.shields.io/badge/Langunge-Bash-red)
+
 ## Installation
 ```bash
 
