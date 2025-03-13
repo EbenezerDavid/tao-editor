@@ -6,11 +6,11 @@ Simple Editor, like vim's commands
 
 ![GitHub License](https://img.shields.io/github/license/EbenezerDavid/tao-editor%20)
 
-![Static Badge](https://img.shields.io/badge/Langunge-Shell-red)
+![Static Badge](https://img.shields.io/badge/Language-Shell-red)
 
-![Static Badge](https://img.shields.io/badge/Langunge-C-green)
+![Static Badge](https://img.shields.io/badge/Language-C-green)
 
-![Static Badge](https://img.shields.io/badge/Langunge-PowerShell-blue)
+![Static Badge](https://img.shields.io/badge/Language-PowerShell-blue)
 
 ## Installation
 ```bash
