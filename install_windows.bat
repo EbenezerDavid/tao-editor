@@ -36,10 +36,10 @@ if %ERRORLEVEL% neq 0 (
 )
 
 REM 编译程序
-echo Compiling ai-easy-edition.c...
-start /wait "C:\msys64\mingw64.exe" -c "cd /c/Users/tao/DOWNLOADS/tao-editor && gcc -o aee ai-easy-edition.c $(pkg-config --cflags --libs gtk+-3.0)"
+echo Compiling tao-editor.c...
+start /wait "C:\msys64\mingw64.exe" -c "cd /c/Users/tao/DOWNLOADS/tao-editor && gcc -o aee tao-editor.c $(pkg-config --cflags --libs gtk+-3.0)"
 if %ERRORLEVEL% neq 0 (
-    echo Compilation failed. Please ensure ai-easy-edition.c exists in C:\Users\tao\DOWNLOADS\tao-editor.
+    echo Compilation failed. Please ensure tao-editor.c exists in C:\Users\tao\DOWNLOADS\tao-editor.
     pause
     exit /b 1
 )
