@@ -31,6 +31,7 @@ if %ERRORLEVEL% neq 0 (
     echo Failed to install dependencies. Please open 'MSYS2 MSYS' terminal and run:
     echo pacman -Syu
     echo pacman -S mingw-w64-x86_64-toolchain mingw-w64-x86_64-gtk3 mingw-w64-x86_64-pkg-config --noconfirm
+    echo pacman -S --noconfirm mingw-w64-x86_64-gcc mingw-w64-x86_64-gtk3 mingw-w64-x86_64-gtksourceview3
     pause
     exit /b 1
 )

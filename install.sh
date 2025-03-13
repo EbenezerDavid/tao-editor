@@ -18,6 +18,7 @@ install_deps() {
             echo "Installing dependencies for Ubuntu/Debian..."
             sudo apt update
             sudo apt install -y build-essential libgtk-3-dev pkg-config
+            sudo apt install -y build-essential libgtk-3-dev libgtksourceview-3.0-dev gcc
         elif command_exists yum; then
             # CentOS/RHEL
             echo "Installing dependencies for CentOS/RHEL..."

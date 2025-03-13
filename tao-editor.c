@@ -7,6 +7,7 @@ GNU GENERAL PUBLIC LICENSE
 
 
 #include <gtk/gtk.h>
+#include <gtksourceview/gtksource.h> // 引入 GtkSourceView 头文件
 #include <gdk/gdkkeysyms.h>
 #include <string.h>
 #include <stdio.h>
@@ -23,7 +24,7 @@ typedef struct {
 typedef struct {
     FileBuffer fb;
     char filename[777];
-    GtkTextBuffer *text_buffer;
+    GtkSourceBuffer *text_buffer; // 改为 GtkSourceBuffer 以支持撤销
     GtkWidget *status_label;
     int mode;  // 0=COMMAND, 1=INSERT
     char cmd_buf[100];
@@ -65,37 +66,36 @@ void save_file(const char *filename, FileBuffer *fb) {
         fprintf(fp, "%s\n", fb->lines[i]);
     }
     fclose(fp);
-    printf("Saved %d lines to %s\n", fb->line_count, filename);  // 调试信息
+    printf("Saved %d lines to %s\n", fb->line_count, filename);
 }
 
 // 更新文本缓冲区（显示用）
 void update_text_buffer(EditorState *state) {
-    gtk_text_buffer_set_text(state->text_buffer, "", -1);
+    gtk_text_buffer_set_text(GTK_TEXT_BUFFER(state->text_buffer), "", -1);
     GtkTextIter iter;
-    gtk_text_buffer_get_start_iter(state->text_buffer, &iter);
+    gtk_text_buffer_get_start_iter(GTK_TEXT_BUFFER(state->text_buffer), &iter);
 
     for (int i = 0; i < state->fb.line_count; i++) {
         char line[256];
         snprintf(line, sizeof(line), "%3d | %s\n", i + 1, state->fb.lines[i]);
-        gtk_text_buffer_insert(state->text_buffer, &iter, line, -1);
+        gtk_text_buffer_insert(GTK_TEXT_BUFFER(state->text_buffer), &iter, line, -1);
     }
 }
 
 // 从文本缓冲区更新FileBuffer（保存用）
 void sync_file_buffer(EditorState *state) {
     GtkTextIter start, end;
-    gtk_text_buffer_get_bounds(state->text_buffer, &start, &end);
-    char *text = gtk_text_buffer_get_text(state->text_buffer, &start, &end, FALSE);
+    gtk_text_buffer_get_bounds(GTK_TEXT_BUFFER(state->text_buffer), &start, &end);
+    char *text = gtk_text_buffer_get_text(GTK_TEXT_BUFFER(state->text_buffer), &start, &end, FALSE);
 
     state->fb.line_count = 0;
     char *line = strtok(text, "\n");
     while (line && state->fb.line_count < MAX_LINES) {
-        // 跳过行号部分（假设格式为"XXX | "）
         char *content = strstr(line, "| ");
         if (content) {
-            content += 2;  // 跳过"| "
+            content += 2;
         } else {
-            content = line;  // 如果没有"| "，直接用整行（用户可能删除了行号）
+            content = line;
         }
         strncpy(state->fb.lines[state->fb.line_count], content, MAX_LINE_LEN - 1);
         state->fb.lines[state->fb.line_count][MAX_LINE_LEN - 1] = '\0';
@@ -103,11 +103,18 @@ void sync_file_buffer(EditorState *state) {
         line = strtok(NULL, "\n");
     }
     g_free(text);
-    //printf("Synced %d lines\n", state->fb.line_count);  // 调试信息
 }
 
-// 处理按键
+// 处理按键（添加 Ctrl + Z 撤销）
 gboolean on_key_press(GtkWidget *widget, GdkEventKey *event, EditorState *state) {
+    // 检测 Ctrl + Z（撤销）
+    if ((event->state & GDK_CONTROL_MASK) && event->keyval == GDK_KEY_z) {
+        if (state->mode == 1 && gtk_source_buffer_can_undo(state->text_buffer)) { // 仅在 INSERT 模式下撤销
+            gtk_source_buffer_undo(state->text_buffer);
+            return TRUE;
+        }
+    }
+
     if (event->keyval == GDK_KEY_Escape) {
         state->mode = 0;
         state->cmd_active = 0;
@@ -214,11 +221,13 @@ int main(int argc, char *argv[]) {
     gtk_label_set_markup(GTK_LABEL(bottom_border), "<span foreground=\"green\">--------------------------------------------------------------------------------</span>");
     gtk_box_pack_start(GTK_BOX(vbox), bottom_border, FALSE, FALSE, 0);
 
-    // 文本区域
-    GtkWidget *text_view = gtk_text_view_new();
-    state.text_buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(text_view));
+    // 文本区域（使用 GtkSourceView）
+    state.text_buffer = gtk_source_buffer_new(NULL);
+    GtkWidget *text_view = gtk_source_view_new_with_buffer(state.text_buffer);
     gtk_text_view_set_editable(GTK_TEXT_VIEW(text_view), TRUE);
     gtk_text_view_set_monospace(GTK_TEXT_VIEW(text_view), TRUE);
+    // 启用撤销管理（默认已启用，但可以明确设置）
+    gtk_source_buffer_set_max_undo_levels(state.text_buffer, -1); // -1 表示无限制
     update_text_buffer(&state);
 
     // 滚动窗口
@@ -238,7 +247,7 @@ int main(int argc, char *argv[]) {
     gtk_main();
 
     printf("\033[32m");
-    printf("[ %s is shutdown ] \n", state.filename);
+    printf("[ %s was closed ] \n", state.filename);
     printf("\033[0m");
     return EXIT_SUCCESS;
 }
